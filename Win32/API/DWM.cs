@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FilteredTaskSwitcher.Win32.Objects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Forms;
 
-namespace FilteredTaskSwitcher.Win32
+namespace FilteredTaskSwitcher.Win32.API
 {
     public class DWM
     {
@@ -36,7 +37,8 @@ namespace FilteredTaskSwitcher.Win32
             {
                 ThumbHandles.Add(thumbHandle);
                 SetLocation(thumbHandle, rect);
-            } else
+            }
+            else
             {
                 MessageBox.Show($"Error! DwmRegisterThumbnail returned {result}");
             }

@@ -1,4 +1,6 @@
-﻿using FilteredTaskSwitcher.Win32;
+﻿using FilteredTaskSwitcher.Classes;
+using FilteredTaskSwitcher.Win32.API;
+using FilteredTaskSwitcher.Win32.Objects;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,12 +11,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace FilteredTaskSwitcher
+namespace FilteredTaskSwitcher.Forms
 {
-    public partial class AltTabUI : Form
+    public partial class TaskSwitch : Form
     {
         private readonly List<WindowInfo> windows = new List<WindowInfo>();
         private readonly System.Timers.Timer timer = new System.Timers.Timer();
+        private readonly FilteredTaskSwitchCollection taskSwitchers = new FilteredTaskSwitchCollection();
 
         private readonly List<string> BrowserFilter = new List<string>() { "firefox", "chrome" };
         private readonly List<string> DevFilter = new List<string>() { "devenv", "idea64" };
@@ -26,19 +29,40 @@ namespace FilteredTaskSwitcher
         private const int previewSpacing = 10;
 
         private delegate void HideFormCallback();
-        private bool FirstRender = true;
+        private bool InitialKeypress = true;
         private int SelectedIndex = 0;
 
-        public AltTabUI()
+        public TaskSwitch()
         {
             InitializeComponent();
             HideForm();
+            timer = GetTimer();
+            InitializeTaskSwitchers();
+        }
 
-            timer = new System.Timers.Timer();
+        private void InitializeTaskSwitchers()
+        {
+            var browserHotkeys = Hotkey.RegisterHotkey(Handle, VirtualKeyboard.F13);
+            var devHotkeys = Hotkey.RegisterHotkey(Handle, VirtualKeyboard.F14);
+
+            taskSwitchers.AddTaskSwitcher(
+                new FilteredTaskSwitcherProcessName(new List<string>() { "firefox", "chrome" }), 
+                browserHotkeys
+                );
+
+            taskSwitchers.AddTaskSwitcher(
+                new FilteredTaskSwitcherProcessName(new List<string>() { "devenv", "idea64" }),
+                devHotkeys
+                );
+        }
+
+        private System.Timers.Timer GetTimer()
+        {
+            var timer = new System.Timers.Timer();
             timer.Elapsed += Timer_Elapsed;
             timer.Interval = 50;
 
-            Hotkey.RegisterHotkeys(Handle);
+            return timer;
         }
 
         private void AltUp()
@@ -49,37 +73,31 @@ namespace FilteredTaskSwitcher
 
             if (SelectedIndex >= 0 && SelectedIndex < windows.Count)
             {
-                Win32.Process.SetFocus(windows[SelectedIndex].Handle);
+                Process.SetFocus(windows[SelectedIndex].Handle);
             }
         }
 
         private void Reset()
         {
-            FirstRender = true;
-            Win32.DWM.UnregisterThumbnails();
+            InitialKeypress = true;
+            DWM.UnregisterThumbnails();
         }
 
-        private void UpdateList(int direction, List<string> filter)
+        private void UpdateSelection(int direction)
         {
-            timer.Start();
-
-            if (FirstRender)
+            if (InitialKeypress)
             {
-                Win32.Process.RefreshWindowList(windows, filter, out IntPtr firstWindow);
+                timer.Start();
 
                 if (!windows.Any())
                 {
                     return;
                 }
 
-                // If the first window in the filter is the window with focus, select the second entry in the list. 
-                // Otherwise, select the first.
-                SelectedIndex = firstWindow == windows[0].Handle ? (windows.Count + direction) % windows.Count : 0;
-
                 ShowList();
                 ShowPreviews();
 
-                FirstRender = false;
+                InitialKeypress = false;
             }
             else
             {
@@ -96,7 +114,7 @@ namespace FilteredTaskSwitcher
             {
                 var window = windows[i];
                 var rectangle = GetRectForIndex(i);
-                Win32.DWM.RegisterThumbnails(window.Handle, Handle, rectangle);
+                DWM.RegisterThumbnails(window.Handle, Handle, rectangle);
             }
         }
 
@@ -122,7 +140,8 @@ namespace FilteredTaskSwitcher
                             rectangle.Top - previewTextHeight,
                             previewTextHeight,
                             previewTextHeight));
-                } catch (Exception)
+                }
+                catch (Exception)
                 {
                     // This happens for elevated processes. If you want to see icons for these processes, try running this app as admin.
                 }
@@ -140,7 +159,7 @@ namespace FilteredTaskSwitcher
             }
         }
 
-        private Win32.Rect GetRectForIndex(int index)
+        private Rect GetRectForIndex(int index)
         {
             int previewsPerRow = (Size.Width - previewSpacing) / (previewSize + previewSpacing);
             int x = index % previewsPerRow;
@@ -148,7 +167,7 @@ namespace FilteredTaskSwitcher
             int pixelsPerPreviewWidth = previewSize + previewSpacing;
             int pixelsPerPreviewHeight = previewSize + previewTextHeight + previewSpacing;
 
-            return new Win32.Rect(
+            return new Rect(
                 previewSpacing + x * pixelsPerPreviewWidth,
                 previewTextHeight + previewSpacing + y * pixelsPerPreviewHeight,
                 previewSpacing + x * pixelsPerPreviewWidth + previewSize,
@@ -166,7 +185,7 @@ namespace FilteredTaskSwitcher
             yIndex /= (previewSize + previewSpacing + previewTextHeight);
 
             return xIndex + yIndex * previewsPerRow;
-            
+
         }
 
         private void ShowList()
@@ -181,7 +200,7 @@ namespace FilteredTaskSwitcher
 
             ShowForm();
             Location = new Point(Screen.PrimaryScreen.Bounds.Width / 2 - (Size.Width / 2), Screen.PrimaryScreen.Bounds.Height / 2 - (Size.Height / 2));
-            Win32.Process.SetFocus(this.Handle);
+            Process.SetFocus(this.Handle);
         }
 
         private void ShowForm()
@@ -207,29 +226,19 @@ namespace FilteredTaskSwitcher
 
             if (m.Msg == WM_HOTKEY)
             {
-                switch ((HotkeyHandles)m.WParam.ToInt32())
+                if (InitialKeypress)
                 {
-                    case HotkeyHandles.BROWSER_SWITCH_PRESSED:
-                        UpdateList(1, (BrowserFilter));
-                        break;
-                    case HotkeyHandles.SHIFT_BROWSER_SWITCH_PRESSED:
-                        UpdateList(-1, (BrowserFilter));
-                        break;
-                    case HotkeyHandles.DEV_SWITCH_PRESSED:
-                        UpdateList(1, (DevFilter));
-                        break;
-                    case HotkeyHandles.SHIFT_DEV_SWITCH_PRESSED:
-                        UpdateList(-1, (DevFilter));
-                        break;
-                    default:
-                        throw new Exception("Unknown hotkey handle triggered");
+                    taskSwitchers.GetWindowInfoListForHotkeyHandle(m.WParam.ToInt32(), windows, out SelectedIndex);
                 }
+
+                int direction = taskSwitchers.GetDirectionForHotkeyHandle(m.WParam.ToInt32());
+                UpdateSelection(direction);
             }
         }
 
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            ushort keyState = Win32.Process.GetAsyncKeyState(VirtualKeyboard.ALT);
+            ushort keyState = Process.GetAsyncKeyState(VirtualKeyboard.ALT);
 
             // This silly api call uses the most significant bit to indicate if a key is pressed, 
             // and the least significant bit for state changes. So yeah. 1 is okay, 0 is okay.

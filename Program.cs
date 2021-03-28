@@ -17,7 +17,7 @@ namespace FilteredTaskSwitcher
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new AltTabUI());
+            Application.Run(new Forms.TaskSwitch());
         }
     }
 }

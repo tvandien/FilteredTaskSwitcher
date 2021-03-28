@@ -1,7 +1,7 @@
 ﻿
-namespace FilteredTaskSwitcher
+namespace FilteredTaskSwitcher.Forms
 {
-    partial class AltTabUI
+    partial class TaskSwitch
     {
         /// <summary>
         /// Required designer variable.
@@ -51,6 +51,7 @@ namespace FilteredTaskSwitcher
             this.ClientSize = new System.Drawing.Size(850, 850);
             this.ControlBox = false;
             this.Controls.Add(this.lbWindows);
+            this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             this.Name = "AltTabUI";

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
 
-namespace FilteredTaskSwitcher.Win32
+namespace FilteredTaskSwitcher.Win32.Objects
 {
     public class WindowInfo
     {

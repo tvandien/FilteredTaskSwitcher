@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FilteredTaskSwitcher.Win32.Objects;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace FilteredTaskSwitcher.Win32
+namespace FilteredTaskSwitcher.Win32.API
 {
     public class Process
     {
@@ -42,7 +43,7 @@ namespace FilteredTaskSwitcher.Win32
 
         [DllImport("user32.dll")]
         private static extern bool GetCursorPos(out Point lpPoint);
-        
+
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr handle, out uint lpdwProcessId);
 
@@ -107,9 +108,9 @@ namespace FilteredTaskSwitcher.Win32
 
         private static bool PointInRectangle(Point p, Rectangle r)
         {
-            return p.X >= r.X && 
-                p.X <= r.X + r.Width && 
-                p.Y >= r.Y && 
+            return p.X >= r.X &&
+                p.X <= r.X + r.Width &&
+                p.Y >= r.Y &&
                 p.Y <= r.Y + r.Height;
         }
     }

@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FilteredTaskSwitcher.Win32
+namespace FilteredTaskSwitcher.Win32.Objects
 {
     [StructLayout(LayoutKind.Sequential)]
     public struct Rect

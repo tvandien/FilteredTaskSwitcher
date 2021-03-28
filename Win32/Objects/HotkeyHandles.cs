@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace FilteredTaskSwitcher.Win32
+namespace FilteredTaskSwitcher.Win32.Objects
 {
     public enum HotkeyHandles
     {
