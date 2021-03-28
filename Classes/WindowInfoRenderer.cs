@@ -213,9 +213,9 @@ namespace FilteredTaskSwitcher.Classes
 
             TaskSwitchForm.lbWindows.SelectedIndex = SelectedIndex;
 
-            TaskSwitchForm.ShowForm();
             var center = new Point(Screen.PrimaryScreen.Bounds.Width / 2, Screen.PrimaryScreen.Bounds.Height / 2);
             TaskSwitchForm.Location = new Point(center.X - (TaskSwitchForm.Size.Width / 2), center.Y - (TaskSwitchForm.Size.Height / 2));
+            TaskSwitchForm.ShowForm();
             Process.SetFocus(TaskSwitchForm.Handle);
         }
     }
