@@ -101,9 +101,13 @@ namespace FilteredTaskSwitcher.Win32.API
             SetForegroundWindow(handle);
         }
 
-        public static ushort GetAsyncKeyState(VirtualKeyboard virtualKeyboard)
+        public static bool IsKeyPressed(VirtualKeyboard keycode)
         {
-            return GetAsyncKeyState((int)virtualKeyboard);
+            // GetAsyncKeyState returns a ushort. 
+            // The most significant bit of this ushort reflects the state of the button.
+            ushort keyState = GetAsyncKeyState((int)keycode);
+            ushort mostSignificantBitForUshort = 32768;
+            return (keyState & mostSignificantBitForUshort) > 0;
         }
 
         private static bool PointInRectangle(Point p, Rectangle r)

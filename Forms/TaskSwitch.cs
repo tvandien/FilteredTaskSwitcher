@@ -238,11 +238,7 @@ namespace FilteredTaskSwitcher.Forms
 
         private void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            ushort keyState = Process.GetAsyncKeyState(VirtualKeyboard.ALT);
-
-            // This silly api call uses the most significant bit to indicate if a key is pressed, 
-            // and the least significant bit for state changes. So yeah. 1 is okay, 0 is okay.
-            if (keyState < 2)
+            if (!Process.IsKeyPressed(VirtualKeyboard.ALT))
             {
                 timer.Stop();
                 AltUp();
