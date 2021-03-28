@@ -19,9 +19,6 @@ namespace FilteredTaskSwitcher.Forms
         private readonly System.Timers.Timer timer = new System.Timers.Timer();
         private readonly FilteredTaskSwitchCollection taskSwitchers = new FilteredTaskSwitchCollection();
 
-        private readonly List<string> BrowserFilter = new List<string>() { "firefox", "chrome" };
-        private readonly List<string> DevFilter = new List<string>() { "devenv", "idea64" };
-
         private const int WM_HOTKEY = 0x0312;
 
         private const int previewSize = 200;
@@ -95,7 +92,8 @@ namespace FilteredTaskSwitcher.Forms
                 }
 
                 ShowList();
-                ShowPreviews();
+                DrawPreviews();
+                Refresh();
 
                 InitialKeypress = false;
             }
@@ -104,11 +102,9 @@ namespace FilteredTaskSwitcher.Forms
                 SelectedIndex = (windows.Count + SelectedIndex + direction) % windows.Count;
                 lbWindows.SelectedIndex = SelectedIndex;
             }
-
-            DrawSelection(SelectedIndex);
         }
 
-        private void ShowPreviews()
+        private void DrawPreviews()
         {
             for (int i = 0; i < windows.Count; i++)
             {
@@ -120,11 +116,7 @@ namespace FilteredTaskSwitcher.Forms
 
         private void DrawSelection(int index)
         {
-            Refresh();
-
             Graphics graphics = Graphics.FromHwnd(Handle);
-
-            graphics.DrawRectangle(Pens.LightGray, GetRectForIndex(index).ToBoundingRectangle());
 
             for (int i = 0; i < windows.Count; i++)
             {
@@ -156,6 +148,9 @@ namespace FilteredTaskSwitcher.Forms
                         rectangle.Width - previewTextHeight,
                         previewTextHeight)
                     );
+
+                Pen pen = (index == i) ? Pens.LightGray : Pens.Black;
+                graphics.DrawRectangle(pen, GetRectForIndex(i).ToBoundingRectangle());
             }
         }
 
@@ -233,6 +228,7 @@ namespace FilteredTaskSwitcher.Forms
 
                 int direction = taskSwitchers.GetDirectionForHotkeyHandle(m.WParam.ToInt32());
                 UpdateSelection(direction);
+                DrawSelection(SelectedIndex);
             }
         }
 
