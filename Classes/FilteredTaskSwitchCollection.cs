@@ -1,5 +1,4 @@
 ﻿using FilteredTaskSwitcher.Win32;
-using FilteredTaskSwitcher.Win32.API;
 using FilteredTaskSwitcher.Win32.Objects;
 using System;
 using System.Collections.Generic;

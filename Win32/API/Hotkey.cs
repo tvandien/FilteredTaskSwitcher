@@ -32,14 +32,6 @@ namespace FilteredTaskSwitcher.Win32.API
             return registeredHotkey;
         }
 
-        public static void RegisterHotkeys(IntPtr handle)
-        {
-            RegisterHotKey(handle, (int)HotkeyHandles.BROWSER_SWITCH_PRESSED, (int)VirtualKeyboardModifiers.ALT, (int)VirtualKeyboard.F13);
-            RegisterHotKey(handle, (int)HotkeyHandles.SHIFT_BROWSER_SWITCH_PRESSED, (int)(VirtualKeyboardModifiers.ALT | VirtualKeyboardModifiers.SHIFT), (int)VirtualKeyboard.F13);
-            RegisterHotKey(handle, (int)HotkeyHandles.DEV_SWITCH_PRESSED, (int)VirtualKeyboardModifiers.ALT, (int)VirtualKeyboard.F14);
-            RegisterHotKey(handle, (int)HotkeyHandles.SHIFT_DEV_SWITCH_PRESSED, (int)(VirtualKeyboardModifiers.ALT | VirtualKeyboardModifiers.SHIFT), (int)VirtualKeyboard.F14);
-        }
-
         public static void UnregisterHotkeys(IntPtr handle)
         {
             foreach (var hotkeyHandle in hotkeyHandles)

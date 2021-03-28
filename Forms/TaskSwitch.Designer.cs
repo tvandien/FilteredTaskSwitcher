@@ -43,7 +43,7 @@ namespace FilteredTaskSwitcher.Forms
             this.lbWindows.TabIndex = 0;
             this.lbWindows.SelectedIndexChanged += new System.EventHandler(this.LbWindows_SelectedIndexChanged);
             // 
-            // AltTabUI
+            // TaskSwitch
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -54,7 +54,7 @@ namespace FilteredTaskSwitcher.Forms
             this.DoubleBuffered = true;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
-            this.Name = "AltTabUI";
+            this.Name = "TaskSwitch";
             this.Opacity = 0.8D;
             this.Text = "AltTabConfig";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.AltTabUI_FormClosing);
@@ -66,6 +66,6 @@ namespace FilteredTaskSwitcher.Forms
 
         #endregion
 
-        private System.Windows.Forms.ListBox lbWindows;
+        public System.Windows.Forms.ListBox lbWindows;
     }
 }
