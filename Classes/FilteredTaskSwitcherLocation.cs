@@ -1,4 +1,5 @@
-﻿using FilteredTaskSwitcher.Win32.Objects;
+﻿using FilteredTaskSwitcher.Win32.API;
+using FilteredTaskSwitcher.Win32.Objects;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,18 +8,20 @@ namespace FilteredTaskSwitcher.Classes
 {
     public class FilteredTaskSwitcherLocation : IFilteredTaskSwitcher
     {
-        public int InitialSelectedIndex => throw new NotImplementedException();
-
-        public bool IsReverseHotkey => throw new NotImplementedException();
-
-        public List<WindowInfo> GetFilteredWindows()
-        {
-            throw new NotImplementedException();
-        }
+        public int InitialSelectedIndex { get; protected set; }
 
         public void UpdatedFilteredWindowList(List<WindowInfo> windows, bool isReverseHotkey)
         {
-            throw new NotImplementedException();
+            Process.UpdateWindowList(windows, out IntPtr firstWindow);
+            FilterWindowList(windows);
+
+            int direction = isReverseHotkey ? -1 : 1;
+            InitialSelectedIndex = firstWindow == windows[0].Handle ? (windows.Count + direction) % windows.Count : 0;
+        }
+
+        private void FilterWindowList(List<WindowInfo> windows)
+        {
+            windows.RemoveAll(a => !a.UnderCursor);
         }
     }
 }

@@ -41,6 +41,7 @@ namespace FilteredTaskSwitcher.Forms
         {
             var browserHotkeys = Hotkey.RegisterHotkey(Handle, VirtualKeyboard.F13);
             var devHotkeys = Hotkey.RegisterHotkey(Handle, VirtualKeyboard.F14);
+            var locationHotkeys = Hotkey.RegisterHotkey(Handle, VirtualKeyboard.F15);
 
             taskSwitchers.AddTaskSwitcher(
                 new FilteredTaskSwitcherProcessName("firefox", "chrome"), 
@@ -50,6 +51,11 @@ namespace FilteredTaskSwitcher.Forms
             taskSwitchers.AddTaskSwitcher(
                 new FilteredTaskSwitcherProcessName("devenv", "idea64"),
                 devHotkeys
+                );
+
+            taskSwitchers.AddTaskSwitcher(
+                new FilteredTaskSwitcherLocation(),
+                locationHotkeys
                 );
         }
 
