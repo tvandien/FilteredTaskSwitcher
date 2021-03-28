@@ -3,6 +3,7 @@ using FilteredTaskSwitcher.Win32.Objects;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace FilteredTaskSwitcher.Classes
 {
@@ -19,10 +20,19 @@ namespace FilteredTaskSwitcher.Classes
 
         public void UpdatedFilteredWindowList(List<WindowInfo> windows, bool isReverseHotkey)
         {
-            Process.RefreshWindowList(windows, processFilter, out IntPtr firstWindow);
+            Process.UpdateWindowList(windows, out IntPtr firstWindow);
+            FilterWindowList(windows);
 
             int direction = isReverseHotkey ? -1 : 1;
             InitialSelectedIndex = firstWindow == windows[0].Handle ? (windows.Count + direction) % windows.Count : 0;
+        }
+
+        private void FilterWindowList(List<WindowInfo> windows)
+        {
+            if (processFilter == null || !processFilter.Any())
+                return;
+
+            windows.RemoveAll(a => !processFilter.Contains(a.Process.ProcessName));
         }
     }
 }

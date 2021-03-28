@@ -47,7 +47,7 @@ namespace FilteredTaskSwitcher.Win32.API
         [DllImport("user32.dll", SetLastError = true)]
         private static extern uint GetWindowThreadProcessId(IntPtr handle, out uint lpdwProcessId);
 
-        public static void RefreshWindowList(List<WindowInfo> windows, List<string> filter, out IntPtr firstWindow)
+        public static void UpdateWindowList(List<WindowInfo> windows, out IntPtr firstWindow)
         {
             windows.Clear();
 
@@ -59,40 +59,42 @@ namespace FilteredTaskSwitcher.Win32.API
 
             EnumWindows(delegate (IntPtr handle, int lParam)
             {
-                if (handle == shellWindow) return true;
-                if (!IsWindowVisible(handle)) return true;
-
-                int length = GetWindowTextLength(handle);
-                if (length == 0) return true;
-
-                StringBuilder windowText = new StringBuilder(length);
-                GetWindowText(handle, windowText, length + 1);
-
-                GetWindowThreadProcessId(handle, out uint pid);
-
-                var process = processes.First(a => a.Id == pid);
-                var fileName = process.ProcessName;
+                var windowInfo = GetWindowInfoFromHandle(handle, processes, mousePosition);
+                if (!windowInfo.IsRealWindow(shellWindow)) return true;
 
                 if (_firstWindow == IntPtr.Zero)
                     _firstWindow = handle;
 
-                if (filter.Any() && !filter.Contains(fileName)) return true;
-
-                GetWindowRect(handle, out Rectangle windowRectangle);
-
-                windows.Add(new WindowInfo()
-                {
-                    Handle = handle,
-                    Process = process,
-                    WindowDescription = windowText.ToString(),
-                    WindowRectangle = windowRectangle,
-                    UnderMouse = PointInRectangle(mousePosition, windowRectangle)
-                });
+                windows.Add(windowInfo);
                 return true;
 
             }, 0);
 
             firstWindow = _firstWindow;
+        }
+
+        private static WindowInfo GetWindowInfoFromHandle(IntPtr handle, System.Diagnostics.Process[] processes, Point mousePosition)
+        {
+            int length = GetWindowTextLength(handle);
+
+            StringBuilder windowText = new StringBuilder(length);
+            GetWindowText(handle, windowText, length + 1);
+
+            GetWindowThreadProcessId(handle, out uint pid);
+            var process = processes.First(a => a.Id == pid);
+
+            GetWindowRect(handle, out Rectangle windowRectangle);
+            var underCursor = PointInRectangle(mousePosition, windowRectangle);
+
+            return new WindowInfo()
+            {
+                Handle = handle,
+                Process = process,
+                WindowDescription = windowText.ToString(),
+                UnderCursor = underCursor,
+                WindowRectangle = windowRectangle,
+                IsVisible = IsWindowVisible(handle)
+            };
         }
 
         public static void SetFocus(IntPtr handle)
