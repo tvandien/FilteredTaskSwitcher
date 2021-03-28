@@ -10,9 +10,9 @@ namespace FilteredTaskSwitcher.Classes
     {
         public int InitialSelectedIndex { get; protected set; }
 
-        private readonly List<string> processFilter;        
+        private readonly string[] processFilter;        
 
-        public FilteredTaskSwitcherProcessName(List<string> processFilter)
+        public FilteredTaskSwitcherProcessName(params string[] processFilter)
         {
             this.processFilter = processFilter;
         }
