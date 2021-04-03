@@ -23,6 +23,9 @@ namespace FilteredTaskSwitcher.Classes
             Process.UpdateWindowList(windows, out IntPtr firstWindow);
             FilterWindowList(windows);
 
+            if (!windows.Any())
+                return;
+
             int direction = isReverseHotkey ? -1 : 1;
             InitialSelectedIndex = firstWindow == windows[0].Handle ? (windows.Count + direction) % windows.Count : 0;
         }
